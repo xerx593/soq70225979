@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 
 @Documented
 @Constraint(validatedBy = MediaTypeValidator.class)
-@Target({ElementType.PARAMETER})
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidMediaType {
 
