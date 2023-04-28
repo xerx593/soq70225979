@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.servlet.http.Part;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import com.stackoverflow.validation.ValidMediaType;
 @Validated
 @Controller
 @RequestMapping("/validated")
+@SuppressWarnings("java:S106")
 public class ValidatedController {
   @Autowired
   ObjectMapper objectMapper;
@@ -49,7 +52,6 @@ public class ValidatedController {
     return new ResponseEntity<>(someFile.getOriginalFilename(), HttpStatus.OK);
   }
 
-  @SuppressWarnings("java:S106")
   @PutMapping(value = "/pdf/json", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<String> pdf1Controller(
       @Valid @ValidMediaType(MediaType.APPLICATION_JSON_VALUE) @RequestPart Part someJson,
@@ -58,10 +60,19 @@ public class ValidatedController {
     return new ResponseEntity<>(someFile.getOriginalFilename(), HttpStatus.OK);
   }
 
+  @PutMapping(value = "/pdf/json/v2", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<String> pdf2Controller(
+      @Valid @RequestPart SomeDto someJson,
+      @Valid @ValidMediaType(MediaType.APPLICATION_PDF_VALUE) @RequestPart MultipartFile someFile) throws IOException {
+    System.err.println(someJson);
+    return new ResponseEntity<>(someFile.getOriginalFilename(), HttpStatus.OK);
+  }
 }
 
 @lombok.Value(staticConstructor = "of")
 class SomeDto {
+  @NotNull
   String foo;
+  @Size(min = 3, max = 6)
   String bar;
 }

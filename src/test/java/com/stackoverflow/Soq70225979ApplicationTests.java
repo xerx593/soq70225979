@@ -31,8 +31,10 @@ class Soq70225979ApplicationTests {
 
   @Autowired
   MockMvc mockMvc;
-  @Value("classpath:test.json")
-  Resource testJson;
+  @Value("classpath:test_valid.json")
+  Resource testValidJson;
+  @Value("classpath:test_invalid.json")
+  Resource testInvalidJson;
 
   @Test
   void testValidatedValidGif() throws Exception {
@@ -83,7 +85,8 @@ class Soq70225979ApplicationTests {
 
   @Test
   void testPdfJsonValid() throws Exception {
-    MockPart jsonPart = new MockPart("someJson", "test.json", testJson.getInputStream().readAllBytes());
+    MockPart jsonPart = new MockPart("someJson", "test.json",
+        testInvalidJson.getInputStream().readAllBytes());
     jsonPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
     mockMvc.perform(
         putMultipart("/validated/pdf/json")
@@ -95,10 +98,56 @@ class Soq70225979ApplicationTests {
 
   @Test
   void testPdfJsonInvalid() throws Exception {
+    mockMvc.perform(putMultipart("/validated/pdf/json")
+        .file(mockPdf)
+        .part(new MockPart("someJson", "test.json",
+            // doesn't matter (valid):
+            testValidJson.getInputStream().readAllBytes()))) // ??
+        .andExpect(status().isBadRequest()); // !
+  }
+
+  @Test
+  void testPdfJson2Valid() throws Exception {
+    final MockPart jsonPart = new MockPart("someJson", "test.json",
+        testValidJson.getInputStream().readAllBytes());
+    // we need this! (so implicitely validate, but other error code)
+    jsonPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+    mockMvc.perform(putMultipart("/validated/pdf/json/v2")
+        .file(mockPdf)
+        .part(jsonPart)) // !
+        .andExpectAll(status().isOk(), // !!
+            content().string("aha.pdf"));
+  }
+
+  @Test
+  void testPdfJson2ValidAlt() throws Exception {
     mockMvc.perform(
-        putMultipart("/validated/pdf/json")
+        putMultipart("/validated/pdf/json/v2")
             .file(mockPdf)
-            .part(new MockPart("someJson", "test.json", testJson.getInputStream().readAllBytes()))) // ??
+            // also
+            .file(validJsonFile()))
+        .andExpectAll(status().isOk(), // ..works !!
+            content().string("aha.pdf"));
+  }
+
+  @Test
+  void testPdfJson2unsupportedMediaType() throws Exception {
+    MockPart jsonPart = new MockPart("someJson", "test.json", testValidJson.getInputStream().readAllBytes());
+    mockMvc.perform(
+        putMultipart("/validated/pdf/json/v2")
+            .file(mockPdf)
+            .part(jsonPart)) // no/wrong content type
+        .andExpect(status().isUnsupportedMediaType()); // !
+  }
+
+  @Test
+  void testPdfJson2Invalid() throws Exception {
+    MockPart jsonPart = new MockPart("someJson", "test.json", testInvalidJson.getInputStream().readAllBytes());
+    jsonPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+    mockMvc.perform(
+        putMultipart("/validated/pdf/json/v2")
+            .file(mockPdf)
+            .part(jsonPart))
         .andExpect(status().isBadRequest()); // !
   }
 
@@ -157,5 +206,15 @@ class Soq70225979ApplicationTests {
       return request;
     });
     return reqBuilder;
+  }
+
+  private MockMultipartFile validJsonFile() {
+    return new MockMultipartFile(
+        "someJson",
+        "test.json",
+        MediaType.APPLICATION_JSON_VALUE, // !
+        """
+            {"foo": "foo","bar": "bar"}
+            """.getBytes());
   }
 }
