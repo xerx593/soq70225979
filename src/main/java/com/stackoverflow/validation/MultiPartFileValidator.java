@@ -2,10 +2,11 @@ package com.stackoverflow.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
-class MediaTypeValidator implements ConstraintValidator<ValidMediaType, MultipartFile> {
+class MultiPartFileValidator implements ConstraintValidator<ValidMediaType, MultipartFile> {
 
   private String allowed;
 

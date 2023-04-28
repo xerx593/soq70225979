@@ -15,16 +15,14 @@ public class NonValidatedController {
   @ResponseBody
   @PutMapping("/gif")
   public String gifController(
-      @RequestPart @Valid
-      @ValidMediaType(MediaType.IMAGE_GIF_VALUE) MultipartFile image) {
+      @RequestPart @Valid @ValidMediaType(MediaType.IMAGE_GIF_VALUE) MultipartFile someFile) {
     return "gif";
   }
 
   @ResponseBody
   @PutMapping("/jpeg")
   public String jpegController(
-      @RequestPart @Valid
-      @ValidMediaType(MediaType.IMAGE_JPEG_VALUE) MultipartFile image) {
+      @RequestPart @Valid @ValidMediaType(MediaType.IMAGE_JPEG_VALUE) MultipartFile someFile) {
     return "jpeg";
   }
 }

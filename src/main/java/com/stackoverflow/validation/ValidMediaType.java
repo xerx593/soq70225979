@@ -10,7 +10,7 @@ import javax.validation.Payload;
 import org.springframework.http.MediaType;
 
 @Documented
-@Constraint(validatedBy = MediaTypeValidator.class)
+@Constraint(validatedBy = { MultiPartFileValidator.class, MultiPartPartValidator.class })
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidMediaType {
