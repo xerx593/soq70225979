@@ -208,13 +208,11 @@ class Soq70225979ApplicationTests {
     return reqBuilder;
   }
 
-  private MockMultipartFile validJsonFile() {
+  private MockMultipartFile validJsonFile() throws IOException {
     return new MockMultipartFile(
         "someJson",
         "test.json",
         MediaType.APPLICATION_JSON_VALUE, // !
-        """
-            {"foo": "foo","bar": "bar"}
-            """.getBytes());
+        testValidJson.getInputStream().readAllBytes());
   }
 }
