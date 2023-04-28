@@ -6,13 +6,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -27,13 +25,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @AutoConfigureMockMvc
 class Soq70225979ApplicationTests {
 
-  static MockMultipartFile mockJpeg;
-  static MockMultipartFile mockGif;
-  static MockMultipartFile mockPdf;
-  @Value("classpath:test.json")
-  Resource testJson;
+  MockMultipartFile mockJpeg;
+  MockMultipartFile mockGif;
+  MockMultipartFile mockPdf;
+
   @Autowired
   MockMvc mockMvc;
+  @Value("classpath:test.json")
+  Resource testJson;
 
   @Test
   void testValidatedValidGif() throws Exception {
@@ -131,18 +130,19 @@ class Soq70225979ApplicationTests {
         .andExpect(status().isOk());
   }
 
-  @BeforeAll
-  static void initFile() throws IOException {
+  Soq70225979ApplicationTests(
+      @Value("classpath:dang.gif") Resource testGif,
+      @Value("classpath:dang.jpg") Resource testJpeg) throws IOException {
     mockJpeg = new MockMultipartFile(
         "someFile",
         "dang.jpg",
         MediaType.IMAGE_JPEG_VALUE,
-        new ClassPathResource("dang.jpg").getInputStream());
+        testJpeg.getInputStream());
     mockGif = new MockMultipartFile(
         "someFile",
         "dang.gif",
         MediaType.IMAGE_GIF_VALUE,
-        new ClassPathResource("dang.gif").getInputStream());
+        testGif.getInputStream());
     mockPdf = new MockMultipartFile(
         "someFile",
         "aha.pdf",
